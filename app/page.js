@@ -1,4 +1,5 @@
 'use client'
+
 import Image from "next/image";
 import { useState, useEffect } from 'react'
 import { firestore } from '@/firebase'
@@ -100,7 +101,8 @@ export default function Home() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      gap={2}
+      p={2}
+      bgcolor="#f5f5f5"
     >
       <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleNotificationClose}>
         <Alert onClose={handleNotificationClose} severity={notification.severity} sx={{ width: '100%' }}>
@@ -121,7 +123,8 @@ export default function Home() {
           flexDirection="column"
           gap={3}
           sx={{
-            transform: 'translate(-50%, -50%)'
+            transform: 'translate(-50%, -50%)',
+            borderRadius: 1,
           }}
         >
           <Typography variant="h6">{editItem ? 'Edit item' : 'Add item'}</Typography>
@@ -135,7 +138,7 @@ export default function Home() {
               }}
             />
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={handleEditSubmit}
             >
               {editItem ? 'Update' : 'Add'}
@@ -145,55 +148,58 @@ export default function Home() {
       </Modal>
       <Button
         variant="contained"
-        onClick={() => {
-          handleOpen()
-        }}
+        color="primary"
+        onClick={handleOpen}
+        sx={{ mb: 2 }}
       >
         Add New Item
       </Button>
-      <Box border="1px solid #333">
+      <Box border="1px solid #333" borderRadius={1} overflow="hidden" bgcolor="white">
         <Box
           width="800px"
           height="100px"
-          bgcolor="#ADD8E6"
+          bgcolor="primary.main"
           display="flex"
           alignItems="center"
           justifyContent="center"
+          color="white"
         >
-          <Typography variant="h2" color='#333'>
+          <Typography variant="h4">
             Inventory Items
           </Typography>
         </Box>
-        <Stack width="800px" height="300px" spacing={2} overflow="auto">
+        <Stack width="800px" height="300px" spacing={2} overflow="auto" p={2}>
           {inventory.map(({ name, quantity }) => (
             <Box
               key={name}
               width="100%"
-              minHeight="150px"
+              minHeight="50px"
               display="flex"
               alignItems="center"
               justifyContent="space-between"
-              bgcolor='#f0f0f0'
-              padding={5}
+              bgcolor='#fafafa'
+              padding={2}
+              borderRadius={1}
+              boxShadow={1}
             >
-              <Typography variant="h3" color="#333" textAlign="center">
+              <Typography variant="h6" color="#333" textAlign="left">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
-                {quantity}
+              <Typography variant="h6" color="#333" textAlign="left">
+                Quantity: {quantity}
               </Typography>
               <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
+                  color="secondary"
                   onClick={() => handleEdit({ name, quantity })}
                 >
                   <EditIcon />
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={() => {
-                    removeItem(name)
-                  }}
+                  color="error"
+                  onClick={() => removeItem(name)}
                 >
                   Remove
                 </Button>

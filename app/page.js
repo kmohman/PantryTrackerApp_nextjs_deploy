@@ -1,12 +1,12 @@
 'use client'
 
-import Image from "next/image";
 import { useState, useEffect } from 'react'
 import { firestore } from '@/firebase'
-import { Box, Modal, Typography, Stack, TextField, Button, Snackbar, Alert, IconButton } from '@mui/material'
+import { Box, Modal, Typography, Stack, TextField, Button, Snackbar, Alert, Grid, Card, CardContent, CardActions, IconButton } from '@mui/material'
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore'
-import EditIcon from '@mui/icons-material/Edit';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { formatDistanceToNow, parseISO } from 'date-fns'
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -117,7 +117,6 @@ export default function Home() {
       height="100vh"
       display="flex"
       flexDirection="column"
-      justifyContent="center"
       alignItems="center"
       p={2}
       sx={{
@@ -198,9 +197,16 @@ export default function Home() {
         onChange={(e) => handleSearch(e.target.value)}
         sx={{ mb: 2 }}
       />
-      <Box border="1px solid #333" borderRadius={1} overflow="hidden" bgcolor="white">
+      <Box
+        width="80%"
+        border="1px solid #333"
+        borderRadius={1}
+        overflow="hidden"
+        bgcolor="white"
+        boxShadow={3}
+      >
         <Box
-          width="800px"
+          width="100%"
           height="100px"
           bgcolor="primary.main"
           display="flex"
@@ -212,48 +218,39 @@ export default function Home() {
             Inventory Items
           </Typography>
         </Box>
-        <Stack width="800px" height="300px" spacing={2} overflow="auto" p={2}>
+        <Grid container spacing={2} p={2}>
           {filteredInventory.map(({ name, quantity, expiration }) => (
-            <Box
-              key={name}
-              width="100%"
-              minHeight="50px"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              bgcolor='#fafafa'
-              padding={2}
-              borderRadius={1}
-              boxShadow={1}
-            >
-              <Typography variant="h6" color="#333" textAlign="left">
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant="h6" color="#333" textAlign="left">
-                Quantity: {quantity}
-              </Typography>
-              <Typography variant="h6" color="#333" textAlign="left">
-                {expiration ? `Expires in ${formatDistanceToNow(parseISO(expiration))} hours` : 'No expiration date'}
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleEdit({ name, quantity, expiration })}
-                >
-                  <EditIcon />
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => removeItem(name)}
-                >
-                  Remove
-                </Button>
-              </Stack>
-            </Box>
+            <Grid item xs={12} sm={6} md={4} key={name}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent>
+                  <Typography variant="h5" color="textSecondary" gutterBottom>
+                    {name.charAt(0).toUpperCase() + name.slice(1)}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Quantity: {quantity}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {expiration ? `Expires in ${formatDistanceToNow(parseISO(expiration))}` : 'No expiration date'}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleEdit({ name, quantity, expiration })}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    onClick={() => removeItem(name)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
           ))}
-        </Stack>
+        </Grid>
       </Box>
     </Box>
   )

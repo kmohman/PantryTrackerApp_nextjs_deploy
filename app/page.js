@@ -246,25 +246,25 @@ export default function Home() {
         sx={{ mb: 2, bgcolor: 'white' }}
       />
       <Box
-        width="80%"
+        width="90%"
         border="1px solid #333"
         borderRadius={1}
         overflow="auto"
         bgcolor="white"
         boxShadow={3}
         p={2}
-        sx={{ maxHeight: '60vh' }}
+        sx={{ maxHeight: '70vh' }}
       >
         <Box
           width="100%"
-          height="100px"
+          height="60px"
           bgcolor="primary.main"
           display="flex"
           alignItems="center"
           justifyContent="center"
           color="white"
         >
-          <Typography variant="h4">
+          <Typography variant="h5">
             Inventory Items
           </Typography>
         </Box>
@@ -273,13 +273,13 @@ export default function Home() {
             <Grid item xs={12} sm={6} md={4} key={name}>
               <Card sx={{ height: '100%', boxShadow: 3 }}>
                 <CardContent>
-                  <Typography variant="h5" color="textSecondary" gutterBottom>
+                  <Typography variant="h6" color="textSecondary" gutterBottom>
                     {name.charAt(0).toUpperCase() + name.slice(1)}
                   </Typography>
-                  <Typography variant="body1" color="textSecondary">
+                  <Typography variant="body2" color="textSecondary">
                     Quantity: {quantity}
                   </Typography>
-                  <Typography variant="body1" color="textSecondary">
+                  <Typography variant="body2" color="textSecondary">
                     {expiration ? `Expires in ${formatDistanceToNow(parseISO(expiration))}` : 'No expiration date'}
                   </Typography>
                 </CardContent>
@@ -316,16 +316,19 @@ export default function Home() {
       </Box>
       <Box mt={2} display="flex" justifyContent="center" alignItems="center" gap={1}>
         <a href="https://www.linkedin.com/in/your-linkedin" target="_blank" rel="noopener noreferrer">
-          <IconButton>
-            <LinkedInIcon color="primary" />
+          <IconButton sx={{ border: '2px solid black', borderRadius: '50%' }}>
+            <LinkedInIcon />
           </IconButton>
         </a>
         <Typography>|</Typography>
         <a href="https://github.com/your-github" target="_blank" rel="noopener noreferrer">
-          <IconButton>
-            <GitHubIcon color="action" />
+          <IconButton sx={{ border: '2px solid black', borderRadius: '50%' }}>
+            <GitHubIcon />
           </IconButton>
         </a>
+      </Box>
+      <Box display="flex" justifyContent="center" alignItems="center" mt={1}>
+        <Typography variant="body2">© 2024 Khalilullah Mohman</Typography>
       </Box>
     </Box>
   )

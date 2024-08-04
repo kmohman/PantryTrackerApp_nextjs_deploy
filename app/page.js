@@ -10,9 +10,11 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
+  const [filteredInventory, setFilteredInventory] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
-  const [expirationDate, setExpirationDate] = useState('')
+  const [itemExpiration, setItemExpiration] = useState('')
   const [editItem, setEditItem] = useState(null)
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' })
 
@@ -27,6 +29,7 @@ export default function Home() {
       })
     })
     setInventory(inventoryList)
+    setFilteredInventory(inventoryList)
   }
 
   const addItem = async (item, expirationDate) => {
@@ -34,10 +37,10 @@ export default function Home() {
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
-      const { quantity } = docSnap.data()
-      await setDoc(docRef, { quantity: quantity + 1, expirationDate })
+      const { quantity, expiration } = docSnap.data()
+      await setDoc(docRef, { quantity: quantity + 1, expiration: expirationDate || expiration })
     } else {
-      await setDoc(docRef, { quantity: 1, expirationDate })
+      await setDoc(docRef, { quantity: 1, expiration: expirationDate })
     }
 
     await updateInventory()
@@ -64,7 +67,7 @@ export default function Home() {
   const handleEdit = async (item) => {
     setEditItem(item)
     setItemName(item.name)
-    setExpirationDate(item.expirationDate || '')
+    setItemExpiration(item.expiration)
     setOpen(true)
   }
 
@@ -72,14 +75,24 @@ export default function Home() {
     if (editItem) {
       const docRef = doc(collection(firestore, 'inventory'), editItem.name)
       await deleteDoc(docRef)
-      await addItem(itemName, expirationDate)
+      await addItem(itemName, itemExpiration)
       setEditItem(null)
     } else {
-      await addItem(itemName, expirationDate)
+      await addItem(itemName, itemExpiration)
     }
     setItemName('')
-    setExpirationDate('')
+    setItemExpiration('')
     setOpen(false)
+  }
+
+  const handleSearch = (query) => {
+    setSearchQuery(query)
+    if (query === '') {
+      setFilteredInventory(inventory)
+    } else {
+      const filtered = inventory.filter(item => item.name.toLowerCase().includes(query.toLowerCase()))
+      setFilteredInventory(filtered)
+    }
   }
 
   useEffect(() => {
@@ -91,16 +104,11 @@ export default function Home() {
     setOpen(false)
     setEditItem(null)
     setItemName('')
-    setExpirationDate('')
+    setItemExpiration('')
   }
 
   const handleNotificationClose = () => {
     setNotification({ ...notification, open: false })
-  }
-
-  const getExpirationMessage = (expirationDate) => {
-    const distance = formatDistanceToNow(parseISO(expirationDate), { addSuffix: false });
-    return `Expires in ${distance}`;
   }
 
   return (
@@ -144,22 +152,25 @@ export default function Home() {
           <Typography variant="h6">{editItem ? 'Edit item' : 'Add item'}</Typography>
           <Stack width="100%" direction="column" spacing={2}>
             <TextField
+              label="Item Name"
               variant="outlined"
               fullWidth
-              label="Item Name"
               value={itemName}
               onChange={(e) => {
                 setItemName(e.target.value)
               }}
             />
             <TextField
+              label="Expiration Date"
               type="date"
               variant="outlined"
               fullWidth
-              label="Expiration Date"
-              value={expirationDate}
+              value={itemExpiration}
               onChange={(e) => {
-                setExpirationDate(e.target.value)
+                setItemExpiration(e.target.value)
+              }}
+              InputLabelProps={{
+                shrink: true,
               }}
             />
             <Button
@@ -179,6 +190,14 @@ export default function Home() {
       >
         Add New Item
       </Button>
+      <TextField
+        label="Search Items"
+        variant="outlined"
+        fullWidth
+        value={searchQuery}
+        onChange={(e) => handleSearch(e.target.value)}
+        sx={{ mb: 2 }}
+      />
       <Box border="1px solid #333" borderRadius={1} overflow="hidden" bgcolor="white">
         <Box
           width="800px"
@@ -194,7 +213,7 @@ export default function Home() {
           </Typography>
         </Box>
         <Stack width="800px" height="300px" spacing={2} overflow="auto" p={2}>
-          {inventory.map(({ name, quantity, expirationDate }) => (
+          {filteredInventory.map(({ name, quantity, expiration }) => (
             <Box
               key={name}
               width="100%"
@@ -214,13 +233,13 @@ export default function Home() {
                 Quantity: {quantity}
               </Typography>
               <Typography variant="h6" color="#333" textAlign="left">
-                {expirationDate ? getExpirationMessage(expirationDate) : 'No expiration date'}
+                {expiration ? `Expires in ${formatDistanceToNow(parseISO(expiration))} hours` : 'No expiration date'}
               </Typography>
               <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleEdit({ name, quantity, expirationDate })}
+                  onClick={() => handleEdit({ name, quantity, expiration })}
                 >
                   <EditIcon />
                 </Button>

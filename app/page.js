@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { firestore } from '@/firebase'
-import { Box, Modal, Typography, Stack, TextField, Button, Snackbar, Alert, Grid, Card, CardContent, CardActions, IconButton } from '@mui/material'
+import { Box, Modal, Typography, Stack, TextField, Button, Snackbar, Alert, Grid, Card, CardContent, CardActions, IconButton, Link } from '@mui/material'
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
+import GitHubIcon from '@mui/icons-material/GitHub'
 import { formatDistanceToNow, parseISO } from 'date-fns'
 
 export default function Home() {
@@ -253,6 +255,26 @@ export default function Home() {
             </Grid>
           ))}
         </Grid>
+      </Box>
+      <Box
+        component="footer"
+        width="100%"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        p={2}
+        mt={2}
+        bgcolor="transparent"
+      >
+        <Link href="https://www.linkedin.com/in/kmohman/" target="_blank" rel="noopener" color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <LinkedInIcon /> LinkedIn
+        </Link>
+        <Typography variant="body2" color="textSecondary" sx={{ mx: 1 }}>
+          |
+        </Typography>
+        <Link href="https://github.com/kmohman" target="_blank" rel="noopener" color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <GitHubIcon /> GitHub
+        </Link>
       </Box>
     </Box>
   )

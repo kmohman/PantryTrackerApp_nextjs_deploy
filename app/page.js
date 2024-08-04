@@ -122,7 +122,9 @@ export default function Home() {
       sx={{
         backgroundImage: 'url(/Pantry-picture.jpg)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
       }}
     >
       <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleNotificationClose}>
@@ -195,7 +197,7 @@ export default function Home() {
         fullWidth
         value={searchQuery}
         onChange={(e) => handleSearch(e.target.value)}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, bgcolor: 'white', borderRadius: 1, boxShadow: 1 }}
       />
       <Box
         width="80%"

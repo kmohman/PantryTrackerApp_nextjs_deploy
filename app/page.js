@@ -6,11 +6,13 @@ import { firestore } from '@/firebase'
 import { Box, Modal, Typography, Stack, TextField, Button, Snackbar, Alert, IconButton } from '@mui/material'
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore'
 import EditIcon from '@mui/icons-material/Edit';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
+  const [expirationDate, setExpirationDate] = useState('')
   const [editItem, setEditItem] = useState(null)
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' })
 
@@ -27,15 +29,15 @@ export default function Home() {
     setInventory(inventoryList)
   }
 
-  const addItem = async (item) => {
+  const addItem = async (item, expirationDate) => {
     const docRef = doc(collection(firestore, 'inventory'), item)
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
       const { quantity } = docSnap.data()
-      await setDoc(docRef, { quantity: quantity + 1 })
+      await setDoc(docRef, { quantity: quantity + 1, expirationDate })
     } else {
-      await setDoc(docRef, { quantity: 1 })
+      await setDoc(docRef, { quantity: 1, expirationDate })
     }
 
     await updateInventory()
@@ -62,6 +64,7 @@ export default function Home() {
   const handleEdit = async (item) => {
     setEditItem(item)
     setItemName(item.name)
+    setExpirationDate(item.expirationDate || '')
     setOpen(true)
   }
 
@@ -69,12 +72,13 @@ export default function Home() {
     if (editItem) {
       const docRef = doc(collection(firestore, 'inventory'), editItem.name)
       await deleteDoc(docRef)
-      await addItem(itemName)
+      await addItem(itemName, expirationDate)
       setEditItem(null)
     } else {
-      await addItem(itemName)
+      await addItem(itemName, expirationDate)
     }
     setItemName('')
+    setExpirationDate('')
     setOpen(false)
   }
 
@@ -87,10 +91,16 @@ export default function Home() {
     setOpen(false)
     setEditItem(null)
     setItemName('')
+    setExpirationDate('')
   }
 
   const handleNotificationClose = () => {
     setNotification({ ...notification, open: false })
+  }
+
+  const getExpirationMessage = (expirationDate) => {
+    const distance = formatDistanceToNow(parseISO(expirationDate), { addSuffix: false });
+    return `Expires in ${distance}`;
   }
 
   return (
@@ -102,7 +112,11 @@ export default function Home() {
       justifyContent="center"
       alignItems="center"
       p={2}
-      bgcolor="#f5f5f5"
+      sx={{
+        backgroundImage: 'url(/Pantry-picture.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
       <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleNotificationClose}>
         <Alert onClose={handleNotificationClose} severity={notification.severity} sx={{ width: '100%' }}>
@@ -128,13 +142,24 @@ export default function Home() {
           }}
         >
           <Typography variant="h6">{editItem ? 'Edit item' : 'Add item'}</Typography>
-          <Stack width="100%" direction="row" spacing={2}>
+          <Stack width="100%" direction="column" spacing={2}>
             <TextField
               variant="outlined"
               fullWidth
+              label="Item Name"
               value={itemName}
               onChange={(e) => {
                 setItemName(e.target.value)
+              }}
+            />
+            <TextField
+              type="date"
+              variant="outlined"
+              fullWidth
+              label="Expiration Date"
+              value={expirationDate}
+              onChange={(e) => {
+                setExpirationDate(e.target.value)
               }}
             />
             <Button
@@ -169,7 +194,7 @@ export default function Home() {
           </Typography>
         </Box>
         <Stack width="800px" height="300px" spacing={2} overflow="auto" p={2}>
-          {inventory.map(({ name, quantity }) => (
+          {inventory.map(({ name, quantity, expirationDate }) => (
             <Box
               key={name}
               width="100%"
@@ -188,11 +213,14 @@ export default function Home() {
               <Typography variant="h6" color="#333" textAlign="left">
                 Quantity: {quantity}
               </Typography>
+              <Typography variant="h6" color="#333" textAlign="left">
+                {expirationDate ? getExpirationMessage(expirationDate) : 'No expiration date'}
+              </Typography>
               <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleEdit({ name, quantity })}
+                  onClick={() => handleEdit({ name, quantity, expirationDate })}
                 >
                   <EditIcon />
                 </Button>
